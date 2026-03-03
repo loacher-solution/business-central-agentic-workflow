@@ -1,0 +1,18 @@
+name: example-open-chart-of-accounts
+description: |
+  Example E2E test: verifies the Chart of Accounts page opens successfully
+  and contains at least one G/L Account entry. This is a smoke test to confirm
+  the BC environment is accessible and functioning.
+start:
+  profile: BUSINESS MANAGER
+steps:
+  - type: goto
+    page: 16
+    description: Open Chart of Accounts (page 16)
+
+  - type: validate
+    target:
+      - page: Chart of Accounts
+    operator: RowCountAtLeast
+    value: "1"
+    description: Verify at least one G/L Account exists in the chart

@@ -48,10 +48,103 @@ You are running **fully autonomously** in a CI pipeline. There is NO human to an
 
 Override these in each target repo's `.claude/agents/developer.md` with repo-specific commands.
 
-- **Install dependencies**: `echo "No install command configured"`
-- **Run tests**: `echo "No test command configured"`
+- **Install dependencies**: `npm install`
+- **Run tests**: `echo "No unit test command configured (AL tests run in BC environment)"`
 - **Run linter**: `echo "No lint command configured"`
-- **Build**: `echo "No build command configured"`
+- **Build**: `echo "No build command configured (AL extensions are built in BC environment)"`
+
+## Business Central End-to-End Tests
+
+When implementing features in a Business Central AL extension repo, you can write and run
+E2E tests using the Business Central page scripting tool and `@microsoft/bc-replay`.
+
+### E2E Test Files
+
+E2E tests live in `tests/e2e/` as YAML page script recordings. Reusable sub-scripts go in
+`tests/e2e/includes/`. See `tests/e2e/README.md` for full documentation.
+
+### Writing a Test
+
+Create a YAML file in `tests/e2e/` using this structure:
+
+```yaml
+name: my-feature-test
+description: Verifies that <feature> works correctly
+start:
+  profile: BUSINESS MANAGER
+steps:
+  - type: goto
+    page: <page-id>
+    description: Open <Page Name>
+
+  - type: action
+    target:
+      - page: <Page Name>
+    action: <Action Name>
+    description: Click <Action Name>
+
+  - type: input
+    target:
+      - page: <Page Name>
+        runtimeRef: auto
+      - field: <Field Name>
+    value: "<value>"
+    description: Enter <value> in <Field Name>
+
+  - type: validate
+    target:
+      - page: <Page Name>
+        runtimeRef: auto
+      - field: <Field Name>
+    operator: Equals
+    value: "<expected value>"
+    description: Verify <Field Name> equals <expected value>
+```
+
+### Common Step Types
+
+| Type       | Purpose                                         |
+|------------|-------------------------------------------------|
+| `goto`     | Navigate to a BC page by ID                     |
+| `action`   | Click an action/button on the page              |
+| `input`    | Type a value into a field                       |
+| `validate` | Assert a field equals an expected value         |
+| `wait`     | Pause execution for N milliseconds              |
+| `include`  | Run another YAML script as part of this one     |
+
+### Running E2E Tests
+
+Prerequisites (set as environment variables):
+- `BC_URL` — URL to the BC web client
+- `BC_USERNAME` — test user account name
+- `BC_PASSWORD` — test user account password
+- `BC_AUTH` — `Windows`, `AAD`, or `UserPassword` (default: `UserPassword`)
+
+Run all tests:
+```bash
+npm run test:e2e
+```
+
+Run a specific test:
+```bash
+npx replay "tests/e2e/my-feature-test.yml" \
+  -StartAddress "$BC_URL" \
+  -Authentication UserPassword \
+  -UserNameKey BC_USERNAME \
+  -PasswordKey BC_PASSWORD \
+  -ResultDir results
+```
+
+View results after a run:
+```bash
+npm run test:e2e:report
+```
+
+### When BC is Not Available
+
+If no BC environment URL is configured (`BC_URL` not set), skip E2E tests and note this
+in your commit message. E2E tests require a running BC instance and are validated in CI
+when the environment is available.
 
 ## Git
 

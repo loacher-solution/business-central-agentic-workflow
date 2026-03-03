@@ -1,0 +1,13 @@
+{
+  "name": "business-central-agentic-workflow",
+  "version": "1.0.0",
+  "description": "Business Central development with agentic workflow",
+  "private": true,
+  "scripts": {
+    "test:e2e": "node scripts/run-e2e-tests.js",
+    "test:e2e:report": "npx playwright show-report results/playwright-report"
+  },
+  "dependencies": {
+    "@microsoft/bc-replay": "latest"
+  }
+}

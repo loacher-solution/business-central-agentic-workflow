@@ -1,0 +1,9 @@
+name: navigate-to-role-center
+description: Reusable sub-script that navigates to the Role Center. Include this
+  at the start of test scripts to ensure a consistent starting point.
+start:
+  profile: BUSINESS MANAGER
+steps:
+  - type: goto
+    page: 9022
+    description: Navigate to Business Manager Role Center (page 9022)
