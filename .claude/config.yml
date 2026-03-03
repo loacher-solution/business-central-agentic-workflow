@@ -1,4 +1,4 @@
 # Repo-specific overrides for the agentic workflow.
 # These override the org-wide defaults from loacher-solution/.github/config.yml
 
-dedicated_branch: "claude/agentic-workflow"
+dedicated_branch: ""
