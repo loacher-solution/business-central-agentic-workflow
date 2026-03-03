@@ -1,0 +1,36 @@
+# Business Central Page Script - Example: Open Customer List
+#
+# This is a template/example recording. Replace with your actual recorded scripts.
+# To create real recordings:
+#   1. Log into Business Central
+#   2. Click Settings gear > Page Scripting
+#   3. Click "Start new" and perform your actions
+#   4. Click Stop, then Save to download the YAML file
+#   5. Place the YAML file in this recordings/ directory
+#
+# For documentation on the YAML format, see:
+# https://learn.microsoft.com/en-us/dynamics365/business-central/dev-itpro/developer/devenv-page-scripting
+
+name: example-customer-list
+description: >
+  Example: Navigate to the Customer List page and verify it opens successfully.
+  Replace this with your actual recorded page script.
+
+# The profile to start from (role center)
+start:
+  profile: BUSINESS MANAGER
+
+steps:
+  # Navigate to the Customers list via the menu
+  - type: navigate
+    description: Open Customers page
+    page: Customer List
+
+  # Validate that the page header is correct
+  - type: validate
+    description: Verify Customer List page is shown
+    target:
+      - page: Customer List
+    property: caption
+    operator: equals
+    value: Customers

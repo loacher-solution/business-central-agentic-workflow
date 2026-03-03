@@ -1,0 +1,13 @@
+{
+  "name": "bc-playwright-tests",
+  "version": "1.0.0",
+  "description": "Business Central end-to-end tests using bc-replay (Playwright-based page scripting)",
+  "scripts": {
+    "test": "node run-tests.js",
+    "test:headed": "node run-tests.js --headed",
+    "report": "npx playwright show-report results/playwright-report"
+  },
+  "dependencies": {
+    "@microsoft/bc-replay": "latest"
+  }
+}

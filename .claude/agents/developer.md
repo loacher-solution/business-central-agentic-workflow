@@ -48,10 +48,61 @@ You are running **fully autonomously** in a CI pipeline. There is NO human to an
 
 Override these in each target repo's `.claude/agents/developer.md` with repo-specific commands.
 
-- **Install dependencies**: `echo "No install command configured"`
-- **Run tests**: `echo "No test command configured"`
+- **Install dependencies**: `cd tests && npm install`
+- **Run tests**: `cd tests && npm test`
 - **Run linter**: `echo "No lint command configured"`
 - **Build**: `echo "No build command configured"`
+
+## Business Central End-to-End Testing
+
+This repo uses **`@microsoft/bc-replay`** (a Playwright-based tool) to run BC page script recordings as automated tests.
+
+### How to write tests
+
+When implementing a BC feature, write a corresponding end-to-end test:
+
+1. **Record in BC UI**: Open BC → Settings gear → Page Scripting → Start new → perform actions → Stop → Save YAML
+2. **Place the YAML** in `tests/recordings/<feature-name>.yml`
+3. **Run the test** to verify: `cd tests && npm test`
+4. **Commit the YAML** alongside your feature code
+
+### How to run tests
+
+Tests require a live BC environment. Configure via environment variables:
+
+```bash
+export BC_START_ADDRESS=https://your-bc.example.com/BC/
+export BC_USERNAME=testuser@example.com
+export BC_PASSWORD=YourPassword
+
+cd tests && npm test
+```
+
+If no BC environment is available (CI without secrets configured), **still commit the YAML recording** — it will be verified when the environment is available.
+
+### YAML recording format
+
+```yaml
+name: my-feature-test
+description: Tests that <feature> works correctly
+start:
+  profile: BUSINESS MANAGER
+
+steps:
+  - type: navigate
+    description: Open the relevant page
+    page: Page Name
+
+  - type: validate
+    description: Verify expected result
+    target:
+      - page: Page Name
+    property: caption
+    operator: equals
+    value: Expected Value
+```
+
+See `tests/README.md` for full documentation and `tests/recordings/example-customer-list.yml` for a complete example.
 
 ## Git
 
