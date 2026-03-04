@@ -1,0 +1,23 @@
+# IDE configuration
+**/.vscode
+
+# Packaged app
+**/*.app
+
+# AL compiler packages
+**/.alpackages
+
+# AL test runner
+**/.altestrunner
+
+# Debugger objects folder
+**/.debug
+
+# favorites extension config file
+# https://marketplace.visualstudio.com/items?itemName=howardzuo.vscode-favorites
+**/.vscfavoriterc
+.vscfavoriterc
+src/GT_008/_MobileWMS/Configuration/.localTest/application.cfg
+src/GT_008/_MobileWMS/Configuration/Resources/
+BC_GT.code-workspace
+src/GT_011/DriveWorks/resources/ts/*
