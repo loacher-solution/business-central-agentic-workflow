@@ -1,6 +1,6 @@
 ---
 name: bc-build
-description: Use when you need to compile, build, or publish AL apps to a Business Central cloud sandbox. Covers the full build-and-deploy workflow.
+description: Use when you need to compile, build, publish, or unpublish AL apps to/from a Business Central cloud sandbox. Covers the full build-and-deploy workflow.
 ---
 
 # BC Build & Publish Skill
@@ -37,7 +37,9 @@ The build script:
 
 Output goes to `<project>/.build/<publisher>_<name>_<version>.app` (gitignored).
 
-### Publish (deploy to cloud sandbox)
+### Publish (deploy to cloud sandbox as Dev)
+
+Apps are published as **Dev** scope using the `/dev/apps` REST endpoint — the same method VS Code uses with F5. This avoids conflicts with PTE (Per Tenant Extension) deployments.
 
 ```bash
 # Build and publish src app
@@ -48,7 +50,34 @@ powershell -ExecutionPolicy Bypass -File .claude/skills/bc-build/scripts/publish
 
 # Publish only (already built)
 powershell -ExecutionPolicy Bypass -File .claude/skills/bc-build/scripts/publish.ps1
+
+# With ForceSync (destructive schema changes)
+powershell -ExecutionPolicy Bypass -File .claude/skills/bc-build/scripts/publish.ps1 -BuildFirst -SchemaUpdateMode ForceSync
 ```
+
+**SchemaUpdateMode options:**
+- `Synchronize` (default) — safe, non-destructive schema sync
+- `ForceSync` — allows destructive schema changes (field removal, type changes)
+- `Recreate` — drops and recreates tables (data loss!)
+
+### Unpublish (remove from cloud sandbox)
+
+Uninstalls and unpublishes extensions from the BC environment via the Automation API. Use this to clean up PTE or Dev extensions.
+
+```bash
+# Unpublish a specific app by name
+powershell -ExecutionPolicy Bypass -File .claude/skills/bc-build/scripts/unpublish.ps1 -AppName "My Extension"
+
+# Unpublish src app (reads name from src/app.json)
+powershell -ExecutionPolicy Bypass -File .claude/skills/bc-build/scripts/unpublish.ps1 -ProjectDir src
+
+# Unpublish both apps
+powershell -ExecutionPolicy Bypass -File .claude/skills/bc-build/scripts/unpublish.ps1 -ProjectDir all
+```
+
+The script automatically uninstalls (if installed) and then unpublishes the extension.
+
+**Common use case:** If a publish fails with "already deployed as a global application or a per tenant application", unpublish the conflicting extension first, then publish again as Dev.
 
 ### Authentication
 
@@ -68,6 +97,15 @@ This is an interactive script that opens a browser for device login. It must be 
 - `publish.ps1` fails with an authentication error
 
 In all cases, tell the user to run `.\.claude\skills\bc-build\scripts\bc-login.ps1`.
+
+## Prerequisites
+
+The following tools must be installed (see `.claude/prerequisites.sh`):
+
+- **.NET SDK** — required to run the AL compiler
+- **AL Compiler** — `dotnet tool install -g microsoft.dynamics.businesscentral.development.tools --prerelease`
+- **PowerShell** — required for build/publish/unpublish scripts
+- **BcContainerHelper** — PowerShell module for BC authentication (`Install-Module BcContainerHelper`)
 
 ## Conventions
 

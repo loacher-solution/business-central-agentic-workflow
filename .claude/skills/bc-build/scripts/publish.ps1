@@ -1,7 +1,11 @@
 <#
 .SYNOPSIS
-    Publishes compiled AL apps to a BC cloud sandbox.
+    Publishes compiled AL apps to a BC cloud sandbox as Dev extensions.
 .DESCRIPTION
+    Uses the /dev/apps REST endpoint (same as VS Code F5) to publish apps
+    as "Dev" scope instead of PTE. This avoids conflicts with VS Code
+    development workflow.
+
     Reads the environment config and stored refresh token, then publishes
     the src app (and optionally the test app) to the configured BC environment.
     App metadata is read from each app.json.
@@ -9,10 +13,13 @@
     .\.claude\skills\bc-build\scripts\publish.ps1
     .\.claude\skills\bc-build\scripts\publish.ps1 -IncludeTest
     .\.claude\skills\bc-build\scripts\publish.ps1 -BuildFirst
+    .\.claude\skills\bc-build\scripts\publish.ps1 -SchemaUpdateMode ForceSync
 #>
 param(
     [switch]$IncludeTest,
-    [switch]$BuildFirst
+    [switch]$BuildFirst,
+    [ValidateSet("Synchronize", "Recreate", "ForceSync")]
+    [string]$SchemaUpdateMode = "Synchronize"
 )
 
 $ErrorActionPreference = "Stop"
@@ -23,6 +30,54 @@ function Get-AppFileName {
 
     $app = Get-Content $AppJsonPath -Raw | ConvertFrom-Json
     return "$($app.publisher)_$($app.name)_$($app.version).app"
+}
+
+function Publish-DevApp {
+    param(
+        [string]$AppFilePath,
+        [string]$AccessToken,
+        [string]$TenantId,
+        [string]$Environment,
+        [string]$SchemaUpdateMode
+    )
+
+    $appName = Split-Path -Leaf $AppFilePath
+    Write-Host "  Publishing $appName as Dev..." -ForegroundColor Cyan
+
+    $url = "https://api.businesscentral.dynamics.com/v2.0/$TenantId/$Environment/dev/apps?SchemaUpdateMode=$SchemaUpdateMode"
+
+    # Use MultipartFormDataContent — same as VS Code AL extension and navcontainerhelper
+    Add-Type -AssemblyName System.Net.Http
+    $httpClient = [System.Net.Http.HttpClient]::new()
+    $httpClient.DefaultRequestHeaders.Authorization = [System.Net.Http.Headers.AuthenticationHeaderValue]::new("Bearer", $AccessToken)
+    $httpClient.Timeout = [TimeSpan]::FromMinutes(10)
+
+    $fileStream = [System.IO.FileStream]::new($AppFilePath, [System.IO.FileMode]::Open, [System.IO.FileAccess]::Read)
+    $multipartContent = [System.Net.Http.MultipartFormDataContent]::new()
+
+    $fileHeader = [System.Net.Http.Headers.ContentDispositionHeaderValue]::new("form-data")
+    $fileHeader.Name = "`"$appName`""
+    $fileHeader.FileName = "`"$appName`""
+    $fileContent = [System.Net.Http.StreamContent]::new($fileStream)
+    $fileContent.Headers.ContentDisposition = $fileHeader
+    $multipartContent.Add($fileContent)
+
+    try {
+        $result = $httpClient.PostAsync($url, $multipartContent).GetAwaiter().GetResult()
+        $statusCode = [int]$result.StatusCode
+        $responseBody = $result.Content.ReadAsStringAsync().GetAwaiter().GetResult()
+
+        if ($result.IsSuccessStatusCode) {
+            Write-Host "  OK: $appName (HTTP $statusCode)" -ForegroundColor Green
+        } else {
+            Write-Error "Publish failed for $appName (HTTP $statusCode): $responseBody"
+            exit 1
+        }
+    } finally {
+        $fileStream.Dispose()
+        $multipartContent.Dispose()
+        $httpClient.Dispose()
+    }
 }
 
 # --- Load config ---
@@ -63,7 +118,7 @@ if ($BuildFirst) {
 Write-Host "Authenticating to BC environment '$BC_ENVIRONMENT'..." -ForegroundColor Cyan
 $authContext = New-BcAuthContext -tenantID $BC_TENANT_ID -refreshToken $refreshToken
 
-if (-not $authContext) {
+if (-not $authContext -or -not $authContext.AccessToken) {
     Write-Error @"
 Authentication failed. Your refresh token may have expired.
 Run .\.claude\skills\bc-build\scripts\bc-login.ps1 to re-authenticate.
@@ -98,12 +153,16 @@ if ($IncludeTest) {
     $appFiles += $testApp
 }
 
-# --- Publish ---
-Write-Host "Publishing to '$BC_ENVIRONMENT'..." -ForegroundColor Cyan
-Publish-PerTenantExtensionApps `
-    -bcAuthContext $authContext `
-    -environment $BC_ENVIRONMENT `
-    -appFiles $appFiles `
-    -schemaSyncMode "Add"
+# --- Publish via /dev/apps endpoint (Dev scope, same as VS Code F5) ---
+Write-Host "Publishing to '$BC_ENVIRONMENT' as Dev (SchemaUpdateMode=$SchemaUpdateMode)..." -ForegroundColor Cyan
 
-Write-Host "`nPublish completed successfully." -ForegroundColor Green
+foreach ($appFile in $appFiles) {
+    Publish-DevApp `
+        -AppFilePath $appFile `
+        -AccessToken $authContext.AccessToken `
+        -TenantId $BC_TENANT_ID `
+        -Environment $BC_ENVIRONMENT `
+        -SchemaUpdateMode $SchemaUpdateMode
+}
+
+Write-Host "`nPublish completed successfully (Dev scope)." -ForegroundColor Green

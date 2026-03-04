@@ -50,6 +50,7 @@ You are running **fully autonomously** in a CI pipeline. There is NO human to an
 - **Build src only**: `powershell -ExecutionPolicy Bypass -File .claude/skills/bc-build/scripts/build.ps1 -ProjectDir src`
 - **Publish**: `powershell -ExecutionPolicy Bypass -File .claude/skills/bc-build/scripts/publish.ps1 -BuildFirst`
 - **Publish with tests**: `powershell -ExecutionPolicy Bypass -File .claude/skills/bc-build/scripts/publish.ps1 -BuildFirst -IncludeTest`
+- **Unpublish**: `powershell -ExecutionPolicy Bypass -File .claude/skills/bc-build/scripts/unpublish.ps1 -ProjectDir all`
 - **Run tests**: `echo "No test command configured"`
 - **Run linter**: `echo "No lint command configured"`
 

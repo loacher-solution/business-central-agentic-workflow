@@ -9,12 +9,13 @@
     - Publish fails with an authentication error
 
     The Tenant ID is automatically detected from your login.
+    The Environment name is required on first run and saved for subsequent runs.
 .EXAMPLE
+    .\.claude\skills\bc-build\scripts\bc-login.ps1 -Environment "sandbox"
     .\.claude\skills\bc-build\scripts\bc-login.ps1
-    .\.claude\skills\bc-build\scripts\bc-login.ps1 -Environment "production"
 #>
 param(
-    [string]$Environment = "ai-test"
+    [string]$Environment
 )
 
 $ErrorActionPreference = "Stop"
@@ -24,6 +25,17 @@ $envFile = Join-Path $PSScriptRoot ".env.ps1"
 if (Test-Path $envFile) {
     . $envFile
     Write-Host "Existing config: tenant=$BC_TENANT_ID, environment=$BC_ENVIRONMENT" -ForegroundColor DarkGray
+    if (-not $Environment) {
+        $Environment = $BC_ENVIRONMENT
+    }
+}
+
+if (-not $Environment) {
+    Write-Error @"
+Environment name is required on first run.
+Usage: .\.claude\skills\bc-build\scripts\bc-login.ps1 -Environment "your-sandbox-name"
+"@
+    exit 1
 }
 
 # --- Device login (tenant=common → auto-detect from user) ---
