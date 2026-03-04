@@ -27,3 +27,6 @@ src/GT_011/DriveWorks/resources/ts/*
 
 # Build output
 **/.build
+
+# BC test runner artifacts (client DLLs, cached)
+.claude/skills/bc-test-runner/.artifacts

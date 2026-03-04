@@ -51,7 +51,8 @@ You are running **fully autonomously** in a CI pipeline. There is NO human to an
 - **Publish**: `powershell -ExecutionPolicy Bypass -File .claude/skills/bc-build-and-publish/scripts/publish.ps1 -BuildFirst`
 - **Publish with tests**: `powershell -ExecutionPolicy Bypass -File .claude/skills/bc-build-and-publish/scripts/publish.ps1 -BuildFirst -IncludeTest`
 - **Unpublish**: `powershell -ExecutionPolicy Bypass -File .claude/skills/bc-build-and-publish/scripts/unpublish.ps1 -ProjectDir all`
-- **Run tests**: `echo "No test command configured"`
+- **Run tests**: `powershell -ExecutionPolicy Bypass -File .claude/skills/bc-test-runner/scripts/run-tests.ps1 -TestAppPath "test/app.json"`
+- **Run tests (skip publish)**: `powershell -ExecutionPolicy Bypass -File .claude/skills/bc-test-runner/scripts/run-tests.ps1 -TestAppPath "test/app.json" -SkipPublish`
 - **Run linter**: `echo "No lint command configured"`
 
 ## Git
@@ -63,6 +64,7 @@ You are running **fully autonomously** in a CI pipeline. There is NO human to an
 
 - **`al-language`**: Invoke when writing or modifying AL code. Provides syntax references, object types, data types, and best practices.
 - **`bc-build-and-publish`**: Invoke when you need to compile or publish. Provides build commands, project structure, and troubleshooting for compilation errors.
+- **`bc-test-runner`**: Invoke when you need to run tests. Runs AL tests headlessly against the BC cloud sandbox and reports pass/fail results.
 
 ## Workflow
 
