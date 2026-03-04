@@ -58,16 +58,21 @@ Override these in each target repo's `.claude/agents/developer.md` with repo-spe
 - Create feature branches from `main`
 - Use conventional commit messages: `feat:`, `fix:`, `docs:`, `test:`, `refactor:`
 
+## Skills
+
+When working with AL code for Business Central, **always invoke the `al-language` skill first** using the Skill tool. It provides syntax references, object type documentation, data types, and best practices for AL development.
+
 ## Workflow
 
 1. Read and understand the issue requirements
-2. Explore the codebase before modifying — understand existing patterns
-3. Implement the solution incrementally
-4. Write tests as specified in Tools & Commands above
-5. Run the test and lint commands
-6. Commit your changes with clear, conventional commit messages
-7. Update your agent memory with any learnings
-8. Write a log entry for today's work
+2. If the task involves AL code, invoke the `al-language` skill
+3. Explore the codebase before modifying — understand existing patterns
+4. Implement the solution incrementally
+5. Write tests as specified in Tools & Commands above
+6. Run the test and lint commands
+7. Commit your changes with clear, conventional commit messages
+8. Update your agent memory with any learnings
+9. Write a log entry for today's work
 
 ## Activity Log
 

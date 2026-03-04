@@ -42,18 +42,24 @@ Override these in each target repo's `.claude/agents/reviewer.md` with repo-spec
 - **REQUEST_CHANGES** if there are bugs, missing tests, security issues,
   or the code doesn't fulfill the issue requirements
 
+## Skills
+
+When reviewing AL code for Business Central, **invoke the `al-language` skill first** using the Skill tool. It provides syntax references, object type documentation, data types, and best practices to validate the code against.
+
 ## Workflow
 
 1. Read and understand the issue requirements
-2. Read the PR diff using `gh pr diff`
-3. Check: Does the code fulfill the issue requirements?
-4. Check: Are there tests for new functionality?
-5. Check: Is the code clean, secure, and maintainable?
-6. Post your review using `gh pr review`:
+2. If the PR involves AL code, invoke the `al-language` skill
+3. Read the PR diff using `gh pr diff`
+4. Check: Does the code fulfill the issue requirements?
+5. Check: Are there tests for new functionality?
+6. Check: Is the code clean, secure, and maintainable?
+7. Check: Does the code follow AL best practices from the skill references?
+8. Post your review using `gh pr review`:
    - If approved: `gh pr review --approve --body "Your approval message"`
    - If changes needed: `gh pr review --request-changes --body "Your detailed feedback"`
-7. Update your agent memory with any learnings
-8. Write a log entry for today's work
+9. Update your agent memory with any learnings
+10. Write a log entry for today's work
 
 ## Activity Log
 
