@@ -20,6 +20,45 @@ Skill for AL (Application Language) programming in Microsoft Dynamics 365 Busine
 - `references/objects.md` - Table, Page, Codeunit, Report Objects
 - `references/datatypes.md` - Data Types and Methods
 - `references/patterns.md` - Best Practices and Code Patterns
+- `references/index.db` - SQLite index of all AL objects (generated)
+
+## Object Index (SQLite)
+
+A SQLite database indexes all AL objects across configured source repos.
+
+### Setup
+
+1. Edit `sources.conf` to list repo paths (one per line)
+2. Run `scripts/build-index.sh` to generate `references/index.db`
+
+### Searching
+
+```bash
+# By name
+scripts/bc-find.sh "Sales Header"
+
+# By type + name
+scripts/bc-find.sh --type table "Sales"
+
+# By object ID
+scripts/bc-find.sh --id 36
+
+# By source repo
+scripts/bc-find.sh --repo BusinessCentralApps "Post"
+
+# Direct SQL
+sqlite3 references/index.db "SELECT * FROM objects WHERE name LIKE '%Sales%' AND type='table';"
+```
+
+### Schema
+
+```sql
+objects(id, type, object_id, name, filepath, source_repo, line)
+```
+
+### Adding Sources
+
+Edit `sources.conf` to add new repos (e.g. custom modules, dependencies), then re-run `build-index.sh`.
 
 ## Key Concepts
 
@@ -74,19 +113,19 @@ if Customer.FindSet() then
     until Customer.Next() = 0;
 ```
 
-## Local Reference Repos
+## Source Repos
 
-Located at `../`:
+Configured in `sources.conf`. Default repos:
 
 | Repo | Content | Use |
 |------|---------|-----|
-| **BusinessCentralApps** | Base Application Source (10,487 AL files) | Look up core BC logic |
+| **BusinessCentralApps** | Base Application Source | Look up core BC logic |
 | **BCApps** | System Application, Dev Tools | System functions |
 | **ALAppExtensions** | First-Party Apps, Localizations | Extension patterns |
 | **BCTech** | Samples, Performance tips | Examples |
 | **AL-Go** | GitHub Actions for BC CI/CD | DevOps Engine |
-| **AL-Go-PTE** | Template for Per-Tenant Extensions | Start new PTE project |
-| **AL-Go-AppSource** | Template for AppSource Apps | Start new AppSource project |
+
+Add custom repos (own modules, dependencies) by editing `sources.conf`.
 
 ### AL-Go Workflow
 
