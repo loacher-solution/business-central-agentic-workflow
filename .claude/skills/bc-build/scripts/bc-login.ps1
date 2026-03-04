@@ -10,6 +10,7 @@
 
     The Tenant ID is automatically detected from your login.
     The Environment name is required on first run and saved for subsequent runs.
+    All credentials are stored in a single .env file (gitignored).
 .EXAMPLE
     .\.claude\skills\bc-build\scripts\bc-login.ps1 -Environment "sandbox"
     .\.claude\skills\bc-build\scripts\bc-login.ps1
@@ -21,9 +22,13 @@ param(
 $ErrorActionPreference = "Stop"
 
 # --- Load existing config if present ---
-$envFile = Join-Path $PSScriptRoot ".env.ps1"
+$envFile = Join-Path $PSScriptRoot ".env"
 if (Test-Path $envFile) {
-    . $envFile
+    $envContent = Get-Content $envFile | Where-Object { $_ -match '^\w+=.+' }
+    $envContent | ForEach-Object {
+        $key, $val = $_ -split '=', 2
+        Set-Variable -Name $key -Value $val
+    }
     Write-Host "Existing config: tenant=$BC_TENANT_ID, environment=$BC_ENVIRONMENT" -ForegroundColor DarkGray
     if (-not $Environment) {
         $Environment = $BC_ENVIRONMENT
@@ -66,19 +71,16 @@ $TenantId = $claims.tid
 
 Write-Host "Detected Tenant ID: $TenantId" -ForegroundColor Green
 
-# --- Save config ---
+# --- Save everything to .env ---
 @"
 # BC environment configuration - DO NOT COMMIT
-`$BC_TENANT_ID = "$TenantId"
-`$BC_ENVIRONMENT = "$Environment"
+BC_TENANT_ID=$TenantId
+BC_ENVIRONMENT=$Environment
+BC_REFRESH_TOKEN=$($authContext.RefreshToken)
 "@ | Set-Content $envFile
 
-# --- Save refresh token ---
-$tokenFile = Join-Path $PSScriptRoot ".auth-token"
-$authContext.RefreshToken | Set-Content $tokenFile -NoNewline
-
 Write-Host "Login successful!" -ForegroundColor Green
-Write-Host "Token saved (valid ~90 days). Re-run this script to renew.`n" -ForegroundColor DarkGray
+Write-Host "Credentials saved to .env (valid ~90 days). Re-run this script to renew.`n" -ForegroundColor DarkGray
 
 # --- Verify ---
 try {

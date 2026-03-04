@@ -22,9 +22,8 @@ src/GT_008/_MobileWMS/Configuration/Resources/
 BC_GT.code-workspace
 src/GT_011/DriveWorks/resources/ts/*
 
-# Auth tokens and environment config (secrets)
-.claude/skills/bc-build/scripts/.auth-token
-.claude/skills/bc-build/scripts/.env.ps1
+# BC environment config and credentials (secrets)
+.claude/skills/bc-build/scripts/.env
 
 # Build output
 **/.build

@@ -55,21 +55,25 @@ if ($ProjectDir -and -not $AppName) {
     exit 1
 }
 
-# --- Load config ---
-$envFile = Join-Path $PSScriptRoot ".env.ps1"
+# --- Load .env ---
+$envFile = Join-Path $PSScriptRoot ".env"
 if (-not (Test-Path $envFile)) {
-    Write-Error "Environment config not found. Run .\.claude\skills\bc-build\scripts\bc-login.ps1 first."
+    Write-Error @"
+Config not found: $envFile
+Run .\.claude\skills\bc-build\scripts\bc-login.ps1 first to authenticate.
+"@
     exit 1
 }
-. $envFile
+Get-Content $envFile | Where-Object { $_ -match '^\w+=.+' } | ForEach-Object {
+    $key, $val = $_ -split '=', 2
+    Set-Variable -Name $key -Value $val
+}
 
-# --- Load refresh token ---
-$tokenFile = Join-Path $PSScriptRoot ".auth-token"
-if (-not (Test-Path $tokenFile)) {
-    Write-Error "Auth token not found. Run .\.claude\skills\bc-build\scripts\bc-login.ps1 first."
+if ([string]::IsNullOrWhiteSpace($BC_REFRESH_TOKEN)) {
+    Write-Error "Refresh token missing in .env. Run .\.claude\skills\bc-build\scripts\bc-login.ps1 to re-authenticate."
     exit 1
 }
-$refreshToken = (Get-Content $tokenFile -Raw).Trim()
+$refreshToken = $BC_REFRESH_TOKEN
 
 # --- Authenticate ---
 Write-Host "Authenticating to BC environment '$BC_ENVIRONMENT'..." -ForegroundColor Cyan
@@ -80,8 +84,11 @@ if (-not $authContext -or -not $authContext.AccessToken) {
     exit 1
 }
 
-if ($authContext.RefreshToken) {
-    $authContext.RefreshToken | Set-Content $tokenFile -NoNewline
+# Save the (possibly renewed) refresh token back to .env
+if ($authContext.RefreshToken -and $authContext.RefreshToken -ne $BC_REFRESH_TOKEN) {
+    $envContent = Get-Content $envFile -Raw
+    $envContent = $envContent -replace "BC_REFRESH_TOKEN=.*", "BC_REFRESH_TOKEN=$($authContext.RefreshToken)"
+    $envContent | Set-Content $envFile -NoNewline
 }
 
 $token = $authContext.AccessToken

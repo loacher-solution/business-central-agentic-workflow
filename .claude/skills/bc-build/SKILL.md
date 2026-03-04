@@ -79,24 +79,44 @@ The script automatically uninstalls (if installed) and then unpublishes the exte
 
 **Common use case:** If a publish fails with "already deployed as a global application or a per tenant application", unpublish the conflicting extension first, then publish again as Dev.
 
-### Authentication
+## Setup (Bootstrap)
 
-Publishing requires a valid refresh token. The token is stored in `.claude/skills/bc-build/scripts/.auth-token` and is valid for ~90 days.
+Publishing and unpublishing require a config file at `.claude/skills/bc-build/scripts/.env` with three values:
 
-**If the token is missing or expired**, you CANNOT fix this yourself. Ask the user to run the following command in a PowerShell terminal:
-
+```ini
+BC_TENANT_ID=<azure-ad-tenant-id>
+BC_ENVIRONMENT=<bc-environment-name>
+BC_REFRESH_TOKEN=<oauth-refresh-token>
 ```
-.\.claude\skills\bc-build\scripts\bc-login.ps1
-```
 
-This is an interactive script that opens a browser for device login. It must be run by a human.
+**How these values are set:**
 
-**How to detect auth issues:**
-- `.claude/skills/bc-build/scripts/.auth-token` does not exist
-- `.claude/skills/bc-build/scripts/.env.ps1` does not exist
-- `publish.ps1` fails with an authentication error
+| Value | How to set |
+|-------|-----------|
+| `BC_TENANT_ID` | Auto-detected during login (from the access token) |
+| `BC_ENVIRONMENT` | Must be provided by the user or AI — this is the BC sandbox name (e.g. `sandbox`, `dev`, `ai-test`) |
+| `BC_REFRESH_TOKEN` | Obtained during interactive login, valid ~90 days |
 
-In all cases, tell the user to run `.\.claude\skills\bc-build\scripts\bc-login.ps1`.
+### First-time setup
+
+1. **Set the environment name** — either:
+   - Create `.claude/skills/bc-build/scripts/.env` with just `BC_ENVIRONMENT=<name>`, or
+   - Pass it as parameter: `.\.claude\skills\bc-build\scripts\bc-login.ps1 -Environment "<name>"`
+2. **Run the login script** (interactive, requires a human):
+   ```
+   .\.claude\skills\bc-build\scripts\bc-login.ps1
+   ```
+   This opens a browser for device login and saves all three values to `.env`.
+
+### When things go wrong
+
+**If `.env` does not exist or is missing values:** Tell the user to run `bc-login.ps1` with their environment name.
+
+**If publish/unpublish fails with an authentication error:** The refresh token has likely expired (~90 days). Tell the user to re-run `bc-login.ps1`.
+
+**If only the environment needs to change:** The `.env` file can be edited directly — just change the `BC_ENVIRONMENT` line. No re-login needed.
+
+**You CANNOT run `bc-login.ps1` yourself** — it opens a browser for interactive device login. Always ask the user to run it.
 
 ## Prerequisites
 
