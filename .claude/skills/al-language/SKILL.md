@@ -76,7 +76,7 @@ if Customer.FindSet() then
 
 ## Local Reference Repos
 
-Located at `~/.openclaw/workspace/bc-reference/`:
+Located at `../`:
 
 | Repo | Content | Use |
 |------|---------|-----|
