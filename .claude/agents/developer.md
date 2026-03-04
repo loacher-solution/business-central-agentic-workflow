@@ -46,12 +46,12 @@ You are running **fully autonomously** in a CI pipeline. There is NO human to an
 
 ## Tools & Commands
 
-Override these in each target repo's `.claude/agents/developer.md` with repo-specific commands.
-
-- **Install dependencies**: `echo "No install command configured"`
+- **Build**: `powershell -ExecutionPolicy Bypass -File .claude/skills/bc-build/scripts/build.ps1`
+- **Build src only**: `powershell -ExecutionPolicy Bypass -File .claude/skills/bc-build/scripts/build.ps1 -ProjectDir src`
+- **Publish**: `powershell -ExecutionPolicy Bypass -File .claude/skills/bc-build/scripts/publish.ps1 -BuildFirst`
+- **Publish with tests**: `powershell -ExecutionPolicy Bypass -File .claude/skills/bc-build/scripts/publish.ps1 -BuildFirst -IncludeTest`
 - **Run tests**: `echo "No test command configured"`
 - **Run linter**: `echo "No lint command configured"`
-- **Build**: `echo "No build command configured"`
 
 ## Git
 
@@ -60,7 +60,8 @@ Override these in each target repo's `.claude/agents/developer.md` with repo-spe
 
 ## Skills
 
-When working with AL code for Business Central, **always invoke the `al-language` skill first** using the Skill tool. It provides syntax references, object type documentation, data types, and best practices for AL development.
+- **`al-language`**: Invoke when writing or modifying AL code. Provides syntax references, object types, data types, and best practices.
+- **`bc-build`**: Invoke when you need to compile or publish. Provides build commands, project structure, and troubleshooting for compilation errors.
 
 ## Workflow
 

@@ -23,8 +23,7 @@ the issue requirements.
 
 ## Tools & Commands
 
-Override these in each target repo's `.claude/agents/reviewer.md` with repo-specific commands.
-
+- **Build (verify compilation)**: `powershell -ExecutionPolicy Bypass -File .claude/skills/bc-build/scripts/build.ps1`
 - **Run tests**: `echo "No test command configured"`
 - **Run linter**: `echo "No lint command configured"`
 
@@ -44,7 +43,8 @@ Override these in each target repo's `.claude/agents/reviewer.md` with repo-spec
 
 ## Skills
 
-When reviewing AL code for Business Central, **invoke the `al-language` skill first** using the Skill tool. It provides syntax references, object type documentation, data types, and best practices to validate the code against.
+- **`al-language`**: Invoke when reviewing AL code. Provides syntax references, object types, data types, and best practices to validate against.
+- **`bc-build`**: Invoke to verify the PR compiles. Provides build commands and project structure.
 
 ## Workflow
 
