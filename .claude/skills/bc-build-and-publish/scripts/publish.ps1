@@ -10,10 +10,10 @@
     the src app (and optionally the test app) to the configured BC environment.
     App metadata is read from each app.json.
 .EXAMPLE
-    .\.claude\skills\bc-build\scripts\publish.ps1
-    .\.claude\skills\bc-build\scripts\publish.ps1 -IncludeTest
-    .\.claude\skills\bc-build\scripts\publish.ps1 -BuildFirst
-    .\.claude\skills\bc-build\scripts\publish.ps1 -SchemaUpdateMode ForceSync
+    .\.claude\skills\bc-build-and-publish\scripts\publish.ps1
+    .\.claude\skills\bc-build-and-publish\scripts\publish.ps1 -IncludeTest
+    .\.claude\skills\bc-build-and-publish\scripts\publish.ps1 -BuildFirst
+    .\.claude\skills\bc-build-and-publish\scripts\publish.ps1 -SchemaUpdateMode ForceSync
 #>
 param(
     [switch]$IncludeTest,
@@ -81,11 +81,12 @@ function Publish-DevApp {
 }
 
 # --- Load .env ---
-$envFile = Join-Path $PSScriptRoot ".env"
+$skillRoot = Split-Path -Parent $PSScriptRoot
+$envFile = Join-Path $skillRoot ".env"
 if (-not (Test-Path $envFile)) {
     Write-Error @"
 Config not found: $envFile
-Run .\.claude\skills\bc-build\scripts\bc-login.ps1 first to authenticate.
+Run .\.claude\skills\bc-build-and-publish\scripts\bc-login.ps1 first to authenticate.
 "@
     exit 1
 }
@@ -95,7 +96,7 @@ Get-Content $envFile | Where-Object { $_ -match '^\w+=.+' } | ForEach-Object {
 }
 
 if ([string]::IsNullOrWhiteSpace($BC_REFRESH_TOKEN)) {
-    Write-Error "Refresh token missing in .env. Run .\.claude\skills\bc-build\scripts\bc-login.ps1 to re-authenticate."
+    Write-Error "Refresh token missing in .env. Run .\.claude\skills\bc-build-and-publish\scripts\bc-login.ps1 to re-authenticate."
     exit 1
 }
 $refreshToken = $BC_REFRESH_TOKEN
@@ -114,7 +115,7 @@ $authContext = New-BcAuthContext -tenantID $BC_TENANT_ID -refreshToken $refreshT
 if (-not $authContext -or -not $authContext.AccessToken) {
     Write-Error @"
 Authentication failed. Your refresh token may have expired.
-Run .\.claude\skills\bc-build\scripts\bc-login.ps1 to re-authenticate.
+Run .\.claude\skills\bc-build-and-publish\scripts\bc-login.ps1 to re-authenticate.
 "@
     exit 1
 }

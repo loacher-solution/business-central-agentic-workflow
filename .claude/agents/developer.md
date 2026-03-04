@@ -46,11 +46,11 @@ You are running **fully autonomously** in a CI pipeline. There is NO human to an
 
 ## Tools & Commands
 
-- **Build**: `powershell -ExecutionPolicy Bypass -File .claude/skills/bc-build/scripts/build.ps1`
-- **Build src only**: `powershell -ExecutionPolicy Bypass -File .claude/skills/bc-build/scripts/build.ps1 -ProjectDir src`
-- **Publish**: `powershell -ExecutionPolicy Bypass -File .claude/skills/bc-build/scripts/publish.ps1 -BuildFirst`
-- **Publish with tests**: `powershell -ExecutionPolicy Bypass -File .claude/skills/bc-build/scripts/publish.ps1 -BuildFirst -IncludeTest`
-- **Unpublish**: `powershell -ExecutionPolicy Bypass -File .claude/skills/bc-build/scripts/unpublish.ps1 -ProjectDir all`
+- **Build**: `powershell -ExecutionPolicy Bypass -File .claude/skills/bc-build-and-publish/scripts/build.ps1`
+- **Build src only**: `powershell -ExecutionPolicy Bypass -File .claude/skills/bc-build-and-publish/scripts/build.ps1 -ProjectDir src`
+- **Publish**: `powershell -ExecutionPolicy Bypass -File .claude/skills/bc-build-and-publish/scripts/publish.ps1 -BuildFirst`
+- **Publish with tests**: `powershell -ExecutionPolicy Bypass -File .claude/skills/bc-build-and-publish/scripts/publish.ps1 -BuildFirst -IncludeTest`
+- **Unpublish**: `powershell -ExecutionPolicy Bypass -File .claude/skills/bc-build-and-publish/scripts/unpublish.ps1 -ProjectDir all`
 - **Run tests**: `echo "No test command configured"`
 - **Run linter**: `echo "No lint command configured"`
 
@@ -62,7 +62,7 @@ You are running **fully autonomously** in a CI pipeline. There is NO human to an
 ## Skills
 
 - **`al-language`**: Invoke when writing or modifying AL code. Provides syntax references, object types, data types, and best practices.
-- **`bc-build`**: Invoke when you need to compile or publish. Provides build commands, project structure, and troubleshooting for compilation errors.
+- **`bc-build-and-publish`**: Invoke when you need to compile or publish. Provides build commands, project structure, and troubleshooting for compilation errors.
 
 ## Workflow
 

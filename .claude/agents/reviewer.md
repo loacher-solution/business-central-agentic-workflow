@@ -23,7 +23,7 @@ the issue requirements.
 
 ## Tools & Commands
 
-- **Build (verify compilation)**: `powershell -ExecutionPolicy Bypass -File .claude/skills/bc-build/scripts/build.ps1`
+- **Build (verify compilation)**: `powershell -ExecutionPolicy Bypass -File .claude/skills/bc-build-and-publish/scripts/build.ps1`
 - **Run tests**: `echo "No test command configured"`
 - **Run linter**: `echo "No lint command configured"`
 
@@ -44,7 +44,7 @@ the issue requirements.
 ## Skills
 
 - **`al-language`**: Invoke when reviewing AL code. Provides syntax references, object types, data types, and best practices to validate against.
-- **`bc-build`**: Invoke to verify the PR compiles. Provides build commands and project structure.
+- **`bc-build-and-publish`**: Invoke to verify the PR compiles. Provides build commands and project structure.
 
 ## Workflow
 

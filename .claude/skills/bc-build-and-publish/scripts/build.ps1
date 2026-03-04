@@ -7,8 +7,8 @@
     so src is compiled first and its output is copied to test/.alpackages.
     App metadata (name, publisher, version) is read from each app.json.
 .EXAMPLE
-    .\.claude\skills\bc-build\scripts\build.ps1
-    .\.claude\skills\bc-build\scripts\build.ps1 -ProjectDir src
+    .\.claude\skills\bc-build-and-publish\scripts\build.ps1
+    .\.claude\skills\bc-build-and-publish\scripts\build.ps1 -ProjectDir src
 #>
 param(
     [ValidateSet("all", "src", "test")]

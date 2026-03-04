@@ -12,8 +12,8 @@
     The Environment name is required on first run and saved for subsequent runs.
     All credentials are stored in a single .env file (gitignored).
 .EXAMPLE
-    .\.claude\skills\bc-build\scripts\bc-login.ps1 -Environment "sandbox"
-    .\.claude\skills\bc-build\scripts\bc-login.ps1
+    .\.claude\skills\bc-build-and-publish\scripts\bc-login.ps1 -Environment "sandbox"
+    .\.claude\skills\bc-build-and-publish\scripts\bc-login.ps1
 #>
 param(
     [string]$Environment
@@ -22,7 +22,8 @@ param(
 $ErrorActionPreference = "Stop"
 
 # --- Load existing config if present ---
-$envFile = Join-Path $PSScriptRoot ".env"
+$skillRoot = Split-Path -Parent $PSScriptRoot
+$envFile = Join-Path $skillRoot ".env"
 if (Test-Path $envFile) {
     $envContent = Get-Content $envFile | Where-Object { $_ -match '^\w+=.+' }
     $envContent | ForEach-Object {
@@ -38,7 +39,7 @@ if (Test-Path $envFile) {
 if (-not $Environment) {
     Write-Error @"
 Environment name is required on first run.
-Usage: .\.claude\skills\bc-build\scripts\bc-login.ps1 -Environment "your-sandbox-name"
+Usage: .\.claude\skills\bc-build-and-publish\scripts\bc-login.ps1 -Environment "your-sandbox-name"
 "@
     exit 1
 }

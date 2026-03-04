@@ -1,5 +1,5 @@
 ---
-name: bc-build
+name: bc-build-and-publish
 description: Use when you need to compile, build, publish, or unpublish AL apps to/from a Business Central cloud sandbox. Covers the full build-and-deploy workflow.
 ---
 
@@ -20,13 +20,13 @@ Build and publish AL apps for Business Central projects.
 
 ```bash
 # Build all apps (src + test)
-powershell -ExecutionPolicy Bypass -File .claude/skills/bc-build/scripts/build.ps1
+powershell -ExecutionPolicy Bypass -File .claude/skills/bc-build-and-publish/scripts/build.ps1
 
 # Build src only
-powershell -ExecutionPolicy Bypass -File .claude/skills/bc-build/scripts/build.ps1 -ProjectDir src
+powershell -ExecutionPolicy Bypass -File .claude/skills/bc-build-and-publish/scripts/build.ps1 -ProjectDir src
 
 # Build test only (requires src to be built first)
-powershell -ExecutionPolicy Bypass -File .claude/skills/bc-build/scripts/build.ps1 -ProjectDir test
+powershell -ExecutionPolicy Bypass -File .claude/skills/bc-build-and-publish/scripts/build.ps1 -ProjectDir test
 ```
 
 The build script:
@@ -43,16 +43,16 @@ Apps are published as **Dev** scope using the `/dev/apps` REST endpoint — the 
 
 ```bash
 # Build and publish src app
-powershell -ExecutionPolicy Bypass -File .claude/skills/bc-build/scripts/publish.ps1 -BuildFirst
+powershell -ExecutionPolicy Bypass -File .claude/skills/bc-build-and-publish/scripts/publish.ps1 -BuildFirst
 
 # Build and publish both apps (src + test)
-powershell -ExecutionPolicy Bypass -File .claude/skills/bc-build/scripts/publish.ps1 -BuildFirst -IncludeTest
+powershell -ExecutionPolicy Bypass -File .claude/skills/bc-build-and-publish/scripts/publish.ps1 -BuildFirst -IncludeTest
 
 # Publish only (already built)
-powershell -ExecutionPolicy Bypass -File .claude/skills/bc-build/scripts/publish.ps1
+powershell -ExecutionPolicy Bypass -File .claude/skills/bc-build-and-publish/scripts/publish.ps1
 
 # With ForceSync (destructive schema changes)
-powershell -ExecutionPolicy Bypass -File .claude/skills/bc-build/scripts/publish.ps1 -BuildFirst -SchemaUpdateMode ForceSync
+powershell -ExecutionPolicy Bypass -File .claude/skills/bc-build-and-publish/scripts/publish.ps1 -BuildFirst -SchemaUpdateMode ForceSync
 ```
 
 **SchemaUpdateMode options:**
@@ -66,13 +66,13 @@ Uninstalls and unpublishes extensions from the BC environment via the Automation
 
 ```bash
 # Unpublish a specific app by name
-powershell -ExecutionPolicy Bypass -File .claude/skills/bc-build/scripts/unpublish.ps1 -AppName "My Extension"
+powershell -ExecutionPolicy Bypass -File .claude/skills/bc-build-and-publish/scripts/unpublish.ps1 -AppName "My Extension"
 
 # Unpublish src app (reads name from src/app.json)
-powershell -ExecutionPolicy Bypass -File .claude/skills/bc-build/scripts/unpublish.ps1 -ProjectDir src
+powershell -ExecutionPolicy Bypass -File .claude/skills/bc-build-and-publish/scripts/unpublish.ps1 -ProjectDir src
 
 # Unpublish both apps
-powershell -ExecutionPolicy Bypass -File .claude/skills/bc-build/scripts/unpublish.ps1 -ProjectDir all
+powershell -ExecutionPolicy Bypass -File .claude/skills/bc-build-and-publish/scripts/unpublish.ps1 -ProjectDir all
 ```
 
 The script automatically uninstalls (if installed) and then unpublishes the extension.
@@ -81,7 +81,7 @@ The script automatically uninstalls (if installed) and then unpublishes the exte
 
 ## Setup (Bootstrap)
 
-Publishing and unpublishing require a config file at `.claude/skills/bc-build/scripts/.env` with three values:
+Publishing and unpublishing require a config file at `.claude/skills/bc-build-and-publish/.env` with three values (see `.env.example`):
 
 ```ini
 BC_TENANT_ID=<azure-ad-tenant-id>
@@ -100,11 +100,11 @@ BC_REFRESH_TOKEN=<oauth-refresh-token>
 ### First-time setup
 
 1. **Set the environment name** — either:
-   - Create `.claude/skills/bc-build/scripts/.env` with just `BC_ENVIRONMENT=<name>`, or
-   - Pass it as parameter: `.\.claude\skills\bc-build\scripts\bc-login.ps1 -Environment "<name>"`
+   - Copy `.env.example` to `.env` and set `BC_ENVIRONMENT=<name>`, or
+   - Pass it as parameter: `.\.claude\skills\bc-build-and-publish\scripts\bc-login.ps1 -Environment "<name>"`
 2. **Run the login script** (interactive, requires a human):
    ```
-   .\.claude\skills\bc-build\scripts\bc-login.ps1
+   .\.claude\skills\bc-build-and-publish\scripts\bc-login.ps1
    ```
    This opens a browser for device login and saves all three values to `.env`.
 

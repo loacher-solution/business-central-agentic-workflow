@@ -23,7 +23,7 @@ BC_GT.code-workspace
 src/GT_011/DriveWorks/resources/ts/*
 
 # BC environment config and credentials (secrets)
-.claude/skills/bc-build/scripts/.env
+.claude/skills/bc-build-and-publish/.env
 
 # Build output
 **/.build

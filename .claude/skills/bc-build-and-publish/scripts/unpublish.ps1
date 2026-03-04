@@ -11,10 +11,10 @@
     3. Uninstalls (if installed)
     4. Unpublishes (removes from environment)
 .EXAMPLE
-    .\.claude\skills\bc-build\scripts\unpublish.ps1 -AppName "My Extension"
-    .\.claude\skills\bc-build\scripts\unpublish.ps1 -AppName "My Extension" -SkipUninstall
-    .\.claude\skills\bc-build\scripts\unpublish.ps1 -ProjectDir src
-    .\.claude\skills\bc-build\scripts\unpublish.ps1 -ProjectDir all
+    .\.claude\skills\bc-build-and-publish\scripts\unpublish.ps1 -AppName "My Extension"
+    .\.claude\skills\bc-build-and-publish\scripts\unpublish.ps1 -AppName "My Extension" -SkipUninstall
+    .\.claude\skills\bc-build-and-publish\scripts\unpublish.ps1 -ProjectDir src
+    .\.claude\skills\bc-build-and-publish\scripts\unpublish.ps1 -ProjectDir all
 #>
 param(
     [string]$AppName,
@@ -56,11 +56,12 @@ if ($ProjectDir -and -not $AppName) {
 }
 
 # --- Load .env ---
-$envFile = Join-Path $PSScriptRoot ".env"
+$skillRoot = Split-Path -Parent $PSScriptRoot
+$envFile = Join-Path $skillRoot ".env"
 if (-not (Test-Path $envFile)) {
     Write-Error @"
 Config not found: $envFile
-Run .\.claude\skills\bc-build\scripts\bc-login.ps1 first to authenticate.
+Run .\.claude\skills\bc-build-and-publish\scripts\bc-login.ps1 first to authenticate.
 "@
     exit 1
 }
@@ -70,7 +71,7 @@ Get-Content $envFile | Where-Object { $_ -match '^\w+=.+' } | ForEach-Object {
 }
 
 if ([string]::IsNullOrWhiteSpace($BC_REFRESH_TOKEN)) {
-    Write-Error "Refresh token missing in .env. Run .\.claude\skills\bc-build\scripts\bc-login.ps1 to re-authenticate."
+    Write-Error "Refresh token missing in .env. Run .\.claude\skills\bc-build-and-publish\scripts\bc-login.ps1 to re-authenticate."
     exit 1
 }
 $refreshToken = $BC_REFRESH_TOKEN
@@ -80,7 +81,7 @@ Write-Host "Authenticating to BC environment '$BC_ENVIRONMENT'..." -ForegroundCo
 $authContext = New-BcAuthContext -tenantID $BC_TENANT_ID -refreshToken $refreshToken
 
 if (-not $authContext -or -not $authContext.AccessToken) {
-    Write-Error "Authentication failed. Run .\.claude\skills\bc-build\scripts\bc-login.ps1 to re-authenticate."
+    Write-Error "Authentication failed. Run .\.claude\skills\bc-build-and-publish\scripts\bc-login.ps1 to re-authenticate."
     exit 1
 }
 
