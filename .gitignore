@@ -31,5 +31,3 @@ src/GT_011/DriveWorks/resources/ts/*
 # BC test runner artifacts (client DLLs, cached)
 .claude/skills/bc-test-runner/.artifacts
 
-# AL language skill - generated index
-.claude/skills/al-language/references/index.db
