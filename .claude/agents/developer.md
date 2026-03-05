@@ -61,6 +61,14 @@ You are running **fully autonomously** in a CI pipeline. There is NO human to an
 - Create feature branches from `main`
 - Use conventional commit messages: `feat:`, `fix:`, `docs:`, `test:`, `refactor:`
 
+### CRITICAL: Commit Rules
+
+- **NEVER commit code without tests.** Implementation code and its tests MUST be in the SAME commit. A commit that contains implementation code but no corresponding tests is a failure.
+- **NEVER commit before tests pass.** You must run `bc-test-runner` and confirm ALL tests pass before creating a commit.
+- **ONE commit per task** (unless the task is very large). The commit must include: implementation + tests + any modified test helpers.
+- Building successfully is NOT a reason to commit. A successful build only means the code compiles — it does not mean the task is done.
+- The only exception is a `docs:` or `refactor:` commit that does not change behavior — those don't require new tests.
+
 ## Skills & When to Use Them
 
 ### `al-language` — AL code reference
@@ -102,14 +110,16 @@ Code written or modified?
 1. Read and understand the issue requirements
 2. If the task involves AL code, invoke the `al-language` skill
 3. Explore the codebase before modifying — understand existing patterns
-4. Implement the solution incrementally
-5. **Build** after significant changes to catch compilation errors early
-6. Write AL tests for new functionality
-7. **Publish + run AL tests** (`bc-test-runner`) to verify logic
+4. Implement the solution incrementally, **Build** after significant changes to catch compilation errors early
+5. Write AL tests for new functionality (DO NOT commit yet!)
+6. **Build** the full project (src + test) to verify tests compile
+7. **Publish + run AL tests** (`bc-test-runner`) to verify ALL tests pass
 8. If UI was changed: write and **run E2E page scripts** (`bc-page-scripting`)
-9. Commit your changes with clear, conventional commit messages
+9. Only AFTER tests pass: commit implementation + tests together in ONE commit
 10. Update your agent memory with any learnings
 11. Write a log entry for today's work
+
+**IMPORTANT:** Steps 4-6 (implement → write tests → build) happen WITHOUT committing. You only commit in step 9 after tests have passed. Do NOT commit intermediate states.
 
 ## Activity Log
 
