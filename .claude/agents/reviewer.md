@@ -25,6 +25,7 @@ the issue requirements.
 
 - **Build (verify compilation)**: `powershell -ExecutionPolicy Bypass -File .claude/skills/bc-build-and-publish/scripts/build.ps1`
 - **Run tests**: `powershell -ExecutionPolicy Bypass -File .claude/skills/bc-test-runner/scripts/run-tests.ps1 -TestAppPath "test/app.json"`
+- **Run page scripts**: `pwsh -File .claude/skills/bc-page-scripting/scripts/run-replay.ps1 -ScriptPath "e2e/recordings/*.yml"`
 - **Run linter**: `echo "No lint command configured"`
 
 ## Review Criteria
@@ -46,6 +47,7 @@ the issue requirements.
 - **`al-language`**: Invoke when reviewing AL code. Provides syntax references, object types, data types, and best practices to validate against.
 - **`bc-build-and-publish`**: Invoke to verify the PR compiles. Provides build commands and project structure.
 - **`bc-test-runner`**: Invoke to run tests against the PR. Runs AL tests headlessly against the BC cloud sandbox and reports pass/fail results.
+- **`bc-page-scripting`**: Invoke to run E2E UI tests against the PR. Runs page scripts (YAML) in a headless browser via Playwright.
 
 ## Workflow
 

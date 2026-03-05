@@ -1,0 +1,13 @@
+name: hello-world-customer
+description: Smoke test - opens Customer List and verifies it loads
+start:
+  page: Customer List
+steps:
+  - type: validate
+    target:
+    - page: Customer List
+    condition:
+      property: isOpen
+      operator: is
+      value: true
+    description: Verify Customer List page opened successfully
