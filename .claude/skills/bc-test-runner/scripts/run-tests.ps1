@@ -119,59 +119,15 @@ if (-not $bcAuthContext -or -not $bcAuthContext.AccessToken) {
 }
 
 # --- Ensure Test Runner is installed ---
-$testRunnerAppId = "23de40a6-dfe8-4f80-80db-d70f83ce8caf"
-Write-Host "Checking Test Runner installation..." -ForegroundColor Cyan
-$apiAuthContext = Renew-BcAuthContext $apiAuthContext
-$headers = @{ "Authorization" = "Bearer $($apiAuthContext.AccessToken)" }
-try {
-    $installedApps = Invoke-RestMethod -Method Get `
-        -Uri "https://api.businesscentral.dynamics.com/admin/v2.21/applications/businesscentral/environments/$BC_ENVIRONMENT/apps" `
-        -Headers $headers
-    $testRunner = $installedApps.value | Where-Object { $_.id -eq $testRunnerAppId }
-    if ($testRunner) {
-        Write-Host "  Test Runner already installed (v$($testRunner.version))" -ForegroundColor Green
-    } else {
-        Write-Host "  Test Runner not found. Installing from AppSource..." -ForegroundColor Yellow
-        $installBody = @{
-            acceptIsvEula = $true
-            installOrUpdateNeededDependencies = $true
-        } | ConvertTo-Json
-        $installResult = Invoke-RestMethod -Method Post `
-            -Uri "https://api.businesscentral.dynamics.com/admin/v2.21/applications/businesscentral/environments/$BC_ENVIRONMENT/apps/$testRunnerAppId/install" `
-            -Headers $headers `
-            -ContentType "application/json" `
-            -Body $installBody
-        $operationId = $installResult.id
-        Write-Host "  Installation started (operation: $operationId). Waiting for completion..." -ForegroundColor Yellow
+$installScript = Join-Path $buildPublishSkill "scripts\install-app.ps1"
 
-        # Poll until installation completes (max 5 minutes)
-        $maxWait = 300
-        $elapsed = 0
-        $interval = 10
-        while ($elapsed -lt $maxWait) {
-            Start-Sleep -Seconds $interval
-            $elapsed += $interval
-            $apiAuthContext = Renew-BcAuthContext $apiAuthContext
-            $headers = @{ "Authorization" = "Bearer $($apiAuthContext.AccessToken)" }
-            try {
-                $apps = Invoke-RestMethod -Method Get `
-                    -Uri "https://api.businesscentral.dynamics.com/admin/v2.21/applications/businesscentral/environments/$BC_ENVIRONMENT/apps" `
-                    -Headers $headers
-                $tr = $apps.value | Where-Object { $_.id -eq $testRunnerAppId }
-                if ($tr) {
-                    Write-Host "  Test Runner installed (v$($tr.version)) after ${elapsed}s" -ForegroundColor Green
-                    break
-                }
-            } catch {}
-            Write-Host "  Still waiting... (${elapsed}s)" -ForegroundColor DarkGray
-        }
-        if ($elapsed -ge $maxWait) {
-            Write-Host "  WARN: Test Runner install may still be in progress. Continuing anyway..." -ForegroundColor Yellow
-        }
-    }
-} catch {
-    Write-Host "  WARN: Could not check/install Test Runner: $($_.Exception.Message)" -ForegroundColor Yellow
-    Write-Host "  If tests fail, install 'Test Runner' from AppSource manually." -ForegroundColor Yellow
+Write-Host "Ensuring Test Runner is installed..." -ForegroundColor Cyan
+& powershell -ExecutionPolicy Bypass -File $installScript `
+    -AppId "23de40a6-dfe8-4f80-80db-d70f83ce8caf" `
+    -AppName "Test Runner"
+if ($LASTEXITCODE -ne 0) {
+    Write-Host "WARN: Test Runner installation failed. Tests may not execute." -ForegroundColor Yellow
+    Write-Host "Install 'Test Runner' from AppSource manually if needed." -ForegroundColor Yellow
 }
 
 # --- Get test app extension ID ---

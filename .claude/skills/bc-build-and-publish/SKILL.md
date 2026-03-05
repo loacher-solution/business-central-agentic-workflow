@@ -79,6 +79,60 @@ The script automatically uninstalls (if installed) and then unpublishes the exte
 
 **Common use case:** If a publish fails with "already deployed as a global application or a per tenant application", unpublish the conflicting extension first, then publish again as Dev.
 
+### Install AppSource App
+
+Installs an AppSource app into the BC sandbox via Admin Center API. If the app is already installed, exits immediately (no overhead).
+
+```bash
+# Install Test Runner
+powershell -ExecutionPolicy Bypass -File .claude/skills/bc-build-and-publish/scripts/install-app.ps1 -AppId "23de40a6-dfe8-4f80-80db-d70f83ce8caf" -AppName "Test Runner"
+
+# Install any AppSource app by ID
+powershell -ExecutionPolicy Bypass -File .claude/skills/bc-build-and-publish/scripts/install-app.ps1 -AppId "<app-guid>" -AppName "My App"
+
+# Force reinstall (e.g., to update to latest version)
+powershell -ExecutionPolicy Bypass -File .claude/skills/bc-build-and-publish/scripts/install-app.ps1 -AppId "23de40a6-dfe8-4f80-80db-d70f83ce8caf" -AppName "Test Runner" -Force
+```
+
+Parameters:
+- `-AppId` (mandatory): The AppSource app GUID
+- `-AppName` (optional): Display name for log messages
+- `-Force` (switch): Reinstall even if already present
+
+Exit codes: 0 = success (or already installed), 1 = failure.
+
+Common AppSource app IDs:
+
+| App | AppSource ID |
+|-----|-------------|
+| Test Runner | `23de40a6-dfe8-4f80-80db-d70f83ce8caf` |
+
+> **Note:** Only apps published to AppSource can be installed via Admin Center API. The `bc-test-runner` skill calls `install-app.ps1` automatically for the Test Runner app before running tests. You typically don't need to call it manually.
+
+### Upload App from Artifacts
+
+Uploads a `.app` file to a BC Online Sandbox as a Dev extension. Can download the `.app` from BC platform artifacts automatically. Uses the same `/dev/apps` endpoint as `publish.ps1`.
+
+```bash
+# Download from BC artifacts and upload as Dev
+powershell -ExecutionPolicy Bypass -File .claude/skills/bc-build-and-publish/scripts/upload-app.ps1 -FromArtifacts -ArtifactAppName "MyApp"
+
+# Upload a local .app file
+powershell -ExecutionPolicy Bypass -File .claude/skills/bc-build-and-publish/scripts/upload-app.ps1 -AppPath "C:\path\to\app.app"
+
+# With ForceSync
+powershell -ExecutionPolicy Bypass -File .claude/skills/bc-build-and-publish/scripts/upload-app.ps1 -FromArtifacts -ArtifactAppName "MyApp" -SchemaUpdateMode ForceSync
+```
+
+Parameters:
+- `-AppPath`: Path to a local `.app` file
+- `-FromArtifacts` (switch): Download from BC platform artifacts instead
+- `-ArtifactAppName`: Name to search for in artifacts (e.g. `Tests-TestLibraries`)
+- `-AppName` (optional): Display name for log messages
+- `-SchemaUpdateMode`: `Synchronize` (default) or `ForceSync`
+
+> **Limitation:** Apps with publisher "Microsoft" cannot be published to online sandboxes — the service blocks restricted publisher names in both tenant and dev scope. This means **Tests-TestLibraries, Library Assert, Library Variable Storage** are not installable in online sandboxes by any method. Build your own test helper codeunits instead.
+
 ## Setup (Bootstrap)
 
 Publishing and unpublishing require a config file at `.claude/skills/bc-build-and-publish/.env` with three values (see `.env.example`):

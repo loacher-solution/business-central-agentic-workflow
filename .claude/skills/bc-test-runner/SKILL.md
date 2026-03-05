@@ -48,12 +48,12 @@ powershell -ExecutionPolicy Bypass -File .claude/skills/bc-test-runner/scripts/r
 powershell -ExecutionPolicy Bypass -File .claude/skills/bc-test-runner/scripts/setup-artifacts.ps1
 ```
 
-Setup runs automatically on first test execution. The Test Runner app is also installed automatically via the Admin Center API if not already present.
+Setup runs automatically on first test execution. The Test Runner app is installed automatically via `install-app.ps1` if not already present.
 
 ## How it works
 
 1. **Setup**: Downloads BC platform artifacts to extract all headless client DLLs (20 assemblies including `Microsoft.Dynamics.Framework.UI.Client.dll`). Cached locally in `.artifacts/`.
-2. **Test Runner Install**: Checks via Admin Center API if the Test Runner app (AppSource ID: `23de40a6-dfe8-4f80-80db-d70f83ce8caf`) is installed. If not, installs it automatically and waits for completion.
+2. **Test Runner Install**: Calls `install-app.ps1` (from `bc-build-and-publish` skill) to ensure the **Test Runner** app is installed in the sandbox. Skips quickly if already installed.
 3. **Build & Publish**: Reuses `bc-build-and-publish` scripts to compile and deploy both src and test apps.
 4. **Auth**: Acquires two OAuth tokens — one for the API (Admin Center) and one for the Client Service (headless test execution, scope `projectmadeira.com`).
 5. **Run**: Opens a headless `ClientContext` to the BC sandbox (no browser, no Docker). Connects to Page 130455 (AL Test Tool) and executes tests via the `RunNextTest` action.
@@ -71,7 +71,7 @@ Setup runs automatically on first test execution. The Test Runner app is also in
 
 ## Limitations
 
-- **No Test Libraries**: The Assert, Any, and Variable Storage test framework apps are not available in online sandboxes. Test codeunits must not depend on them.
+- **No Microsoft Test Libraries**: Tests-TestLibraries (Library Assert, Library Variable Storage, etc.) cannot be installed in online sandboxes — Microsoft blocks publishing apps with the "Microsoft" publisher name via all available APIs (/dev/apps, Admin Center API, Automation API). Instead, create your own test helper codeunits in the `test/` project (e.g. `Sales Library`) and use native AL assertions (`asserterror`, `Error()`, `if ... Error()`).
 - **User credentials only**: Service Principal authentication does not work with the ClientContext. The refresh token must be from a user login.
 - **One sandbox at a time**: Tests run against the environment configured in `.env`.
 - **AntiSSRF warning**: The `Microsoft.Internal.AntiSSRF.dll` may emit a load warning on PowerShell 5.1. This is harmless and does not affect test execution.

@@ -31,3 +31,11 @@ src/GT_011/DriveWorks/resources/ts/*
 # BC test runner artifacts (client DLLs, cached)
 .claude/skills/bc-test-runner/.artifacts
 
+# BC page scripting (npm dependencies, cached)
+.claude/skills/bc-page-scripting/node_modules
+.claude/skills/bc-page-scripting/package-lock.json
+.claude/skills/bc-page-scripting/package.json
+
+# BC page scripting (test output, generated)
+.claude/skills/bc-page-scripting/test-results
+e2e/results
