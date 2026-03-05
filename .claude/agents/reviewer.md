@@ -42,27 +42,59 @@ the issue requirements.
 - **REQUEST_CHANGES** if there are bugs, missing tests, security issues,
   or the code doesn't fulfill the issue requirements
 
-## Skills
+## Skills & When to Use Them
 
-- **`al-language`**: Invoke when reviewing AL code. Provides syntax references, object types, data types, and best practices to validate against.
-- **`bc-build-and-publish`**: Invoke to verify the PR compiles. Provides build commands and project structure.
-- **`bc-test-runner`**: Invoke to run tests against the PR. Runs AL tests headlessly against the BC cloud sandbox and reports pass/fail results.
-- **`bc-page-scripting`**: Invoke to run E2E UI tests against the PR. Runs page scripts (YAML) in a headless browser via Playwright.
+### `al-language` — AL code reference
+**When:** Always invoke when reviewing AL code.
+Provides syntax references, object types, data types, and best practices to validate against.
+
+### `bc-build-and-publish` — Compile & deploy
+**When:** Always verify the PR compiles by running a build.
+- **Build** to confirm the code compiles without errors. This is mandatory for every review.
+- **Publish** only if you need to run AL tests (see `bc-test-runner`).
+
+### `bc-test-runner` — AL unit/integration tests
+**When:** To verify that the PR's logic works correctly.
+- Always run existing tests to check for regressions.
+- Check if the PR includes new tests for new functionality — flag missing tests.
+- Requires publish first (`-BuildFirst` flag on publish handles this).
+
+### `bc-page-scripting` — E2E UI tests
+**When:** To verify that UI-facing changes work correctly from a user's perspective.
+- Run when the PR touches **Pages, PageExtensions, Report request pages**, or anything that can only be fully validated through the UI.
+- Not required for pure backend changes (codeunits, table logic) where `bc-test-runner` is sufficient.
+- Check if the PR includes new/updated page scripts for UI changes — flag if missing.
+
+### Skill usage decision tree
+
+```
+PR contains AL code?
+├── YES → Build (bc-build-and-publish) to verify compilation
+│   ├── Backend logic only? → Run AL tests (bc-test-runner)
+│   ├── UI changes (Pages, PageExtensions, Reports)?
+│   │   ├── Run AL tests (bc-test-runner) for logic
+│   │   └── Run E2E page scripts (bc-page-scripting) for UI
+│   └── Always run bc-test-runner to check for regressions
+└── NO (docs, config only) → No build/test skills needed
+```
 
 ## Workflow
 
 1. Read and understand the issue requirements
 2. If the PR involves AL code, invoke the `al-language` skill
 3. Read the PR diff using `gh pr diff`
-4. Check: Does the code fulfill the issue requirements?
-5. Check: Are there tests for new functionality?
-6. Check: Is the code clean, secure, and maintainable?
-7. Check: Does the code follow AL best practices from the skill references?
-8. Post your review using `gh pr review`:
-   - If approved: `gh pr review --approve --body "Your approval message"`
-   - If changes needed: `gh pr review --request-changes --body "Your detailed feedback"`
-9. Update your agent memory with any learnings
-10. Write a log entry for today's work
+4. **Build** the code to verify it compiles
+5. Check: Does the code fulfill the issue requirements?
+6. Check: Are there tests for new functionality?
+7. **Run AL tests** (`bc-test-runner`) to check for regressions
+8. If UI was changed: **run E2E page scripts** (`bc-page-scripting`)
+9. Check: Is the code clean, secure, and maintainable?
+10. Check: Does the code follow AL best practices from the skill references?
+11. Post your review using `gh pr review`:
+    - If approved: `gh pr review --approve --body "Your approval message"`
+    - If changes needed: `gh pr review --request-changes --body "Your detailed feedback"`
+12. Update your agent memory with any learnings
+13. Write a log entry for today's work
 
 ## Activity Log
 

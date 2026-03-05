@@ -61,12 +61,41 @@ You are running **fully autonomously** in a CI pipeline. There is NO human to an
 - Create feature branches from `main`
 - Use conventional commit messages: `feat:`, `fix:`, `docs:`, `test:`, `refactor:`
 
-## Skills
+## Skills & When to Use Them
 
-- **`al-language`**: Invoke when writing or modifying AL code. Provides syntax references, object types, data types, and best practices.
-- **`bc-build-and-publish`**: Invoke when you need to compile or publish. Provides build commands, project structure, and troubleshooting for compilation errors.
-- **`bc-test-runner`**: Invoke when you need to run tests. Runs AL tests headlessly against the BC cloud sandbox and reports pass/fail results.
-- **`bc-page-scripting`**: Invoke when you need to run E2E UI tests. Creates and runs page scripts (YAML) against the BC web client via Playwright.
+### `al-language` — AL code reference
+**When:** Always invoke when writing or modifying AL code.
+Provides syntax references, object types, data types, and best practices.
+
+### `bc-build-and-publish` — Compile & deploy
+**When:** After writing or modifying AL code, to verify it compiles without errors.
+- **Build** after every significant code change (new objects, modified logic, structural changes). This catches compilation errors early.
+- **Publish** only when you need to run AL tests (see `bc-test-runner`). Publishing deploys the app to the BC sandbox — it is not needed just to verify compilation.
+
+### `bc-test-runner` — AL unit/integration tests
+**When:** To verify that implemented logic works correctly through code-level tests.
+- Always run at the end of a task to confirm the implementation is correct.
+- Requires publish first (`-BuildFirst` flag on publish handles this).
+- Tests AL code by executing AL test codeunits against the BC sandbox.
+
+### `bc-page-scripting` — E2E UI tests
+**When:** To verify that UI-facing changes work correctly from a user's perspective.
+- Use when the task touches **Pages, PageExtensions, Report request pages**, or anything that can only be fully validated through the UI.
+- Not required for pure backend changes (codeunits, table logic) where `bc-test-runner` is sufficient.
+- Creates and runs page scripts (YAML recordings) against the BC web client via Playwright.
+
+### Skill usage decision tree
+
+```
+Code written or modified?
+├── YES → Build (bc-build-and-publish) to verify compilation
+│   ├── Backend logic only? → Run AL tests (bc-test-runner)
+│   ├── UI changes (Pages, PageExtensions, Reports)?
+│   │   ├── Run AL tests (bc-test-runner) for logic
+│   │   └── Run E2E page scripts (bc-page-scripting) for UI
+│   └── End of task → Always run bc-test-runner as final verification
+└── NO → No skills needed
+```
 
 ## Workflow
 
@@ -74,11 +103,13 @@ You are running **fully autonomously** in a CI pipeline. There is NO human to an
 2. If the task involves AL code, invoke the `al-language` skill
 3. Explore the codebase before modifying — understand existing patterns
 4. Implement the solution incrementally
-5. Write tests as specified in Tools & Commands above
-6. Run the test and lint commands
-7. Commit your changes with clear, conventional commit messages
-8. Update your agent memory with any learnings
-9. Write a log entry for today's work
+5. **Build** after significant changes to catch compilation errors early
+6. Write AL tests for new functionality
+7. **Publish + run AL tests** (`bc-test-runner`) to verify logic
+8. If UI was changed: write and **run E2E page scripts** (`bc-page-scripting`)
+9. Commit your changes with clear, conventional commit messages
+10. Update your agent memory with any learnings
+11. Write a log entry for today's work
 
 ## Activity Log
 
