@@ -35,4 +35,9 @@ src/GT_011/DriveWorks/resources/ts/*
 .claude/skills/bc-page-scripting/node_modules
 .claude/skills/bc-page-scripting/package-lock.json
 .claude/skills/bc-page-scripting/package.json
+
+# BC page scripting (test output, generated)
+.claude/skills/bc-page-scripting/test-results
+.claude/skills/bc-page-scripting/playwright-report
+.claude/skills/bc-page-scripting/results.xml
 e2e/results

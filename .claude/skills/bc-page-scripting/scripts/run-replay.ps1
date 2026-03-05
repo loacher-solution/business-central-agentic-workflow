@@ -75,6 +75,9 @@ if (-not $ResultDir) {
 if (-not [System.IO.Path]::IsPathRooted($ResultDir)) {
     $ResultDir = Join-Path $repoRoot $ResultDir
 }
+if (-not (Test-Path $ResultDir)) {
+    New-Item -ItemType Directory -Path $ResultDir -Force | Out-Null
+}
 
 # --- Set credentials as env vars ---
 $env:BC_E2E_USERNAME = $BC_E2E_USERNAME

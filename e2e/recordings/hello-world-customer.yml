@@ -1,11 +1,24 @@
 name: hello-world-customer
-description: Smoke test - opens Customer List and verifies it loads
+description: Smoke test - opens Role Center and navigates to Customer List
 start:
-  page: Customer List
+  profile: BUSINESS MANAGER
 steps:
   - type: validate
     target:
-    - page: Customer List
+    - page: Business Manager Role Center
+    condition:
+      property: isOpen
+      operator: is
+      value: true
+    description: Verify Role Center opened successfully
+  - type: action
+    target:
+    - page: Business Manager Role Center
+    - action: Debitoren
+    description: Navigate to Customer List from Role Center
+  - type: validate
+    target:
+    - page: Debitorenübersicht
     condition:
       property: isOpen
       operator: is
