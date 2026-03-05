@@ -107,6 +107,16 @@ try {
     & npx @replayArgs
     $exitCode = $LASTEXITCODE
 } finally {
+    # Move Playwright test-results from skill folder to ResultDir
+    # (Playwright writes test-results relative to the working directory)
+    $skillTestResults = Join-Path $skillRoot "test-results"
+    if (Test-Path $skillTestResults) {
+        $targetTestResults = Join-Path $ResultDir "test-results"
+        if (Test-Path $targetTestResults) {
+            Remove-Item $targetTestResults -Recurse -Force
+        }
+        Move-Item $skillTestResults $targetTestResults -Force
+    }
     Pop-Location
     # Clean up env vars
     Remove-Item Env:BC_E2E_USERNAME -ErrorAction SilentlyContinue

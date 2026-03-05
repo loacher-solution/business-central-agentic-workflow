@@ -14,11 +14,11 @@ steps:
   - type: action
     target:
     - page: Business Manager Role Center
-    - action: Debitoren
+    - action: Customers
     description: Navigate to Customer List from Role Center
   - type: validate
     target:
-    - page: Debitorenübersicht
+    - page: Customer List
     condition:
       property: isOpen
       operator: is

@@ -38,6 +38,4 @@ src/GT_011/DriveWorks/resources/ts/*
 
 # BC page scripting (test output, generated)
 .claude/skills/bc-page-scripting/test-results
-.claude/skills/bc-page-scripting/playwright-report
-.claude/skills/bc-page-scripting/results.xml
 e2e/results
