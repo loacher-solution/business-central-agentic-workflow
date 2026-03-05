@@ -127,4 +127,82 @@ codeunit 50202 "Sales Line Discount Test"
         SalesLineDiscountHelper.ValidateDiscountPct(0);
         SalesLineDiscountHelper.ValidateDiscountPct(100);
     end;
+
+    [Test]
+    procedure TestApplyUnitPriceToItemLines()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        LinesUpdated: Integer;
+    begin
+        // Given: A sales order with two item lines
+        SalesLibrary.CreateSalesOrderWithItemLines(SalesHeader, 2);
+
+        // When: Apply unit price of 50
+        LinesUpdated := SalesLineDiscountHelper.ApplyUnitPrice(SalesHeader, 50);
+
+        // Then: Both lines should be updated with unit price 50
+        if LinesUpdated <> 2 then
+            Error('Expected 2 lines updated, got %1', LinesUpdated);
+
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.SetRange(Type, SalesLine.Type::Item);
+        SalesLine.FindSet();
+        repeat
+            if SalesLine."Unit Price" <> 50 then
+                Error('Expected unit price 50 on line %1, got %2', SalesLine."Line No.", SalesLine."Unit Price");
+        until SalesLine.Next() = 0;
+    end;
+
+    [Test]
+    procedure TestApplyUnitPriceSkipsNonItemLines()
+    var
+        SalesHeader: Record "Sales Header";
+        LinesUpdated: Integer;
+    begin
+        // Given: A sales order with one item line and one comment line
+        SalesLibrary.CreateSalesOrderWithItemLines(SalesHeader, 1);
+        SalesLibrary.CreateCommentLine(SalesHeader);
+
+        // When: Apply unit price of 75
+        LinesUpdated := SalesLineDiscountHelper.ApplyUnitPrice(SalesHeader, 75);
+
+        // Then: Only the item line should be updated
+        if LinesUpdated <> 1 then
+            Error('Expected 1 line updated, got %1', LinesUpdated);
+    end;
+
+    [Test]
+    procedure TestApplyUnitPriceReturnsZeroWhenNoItemLines()
+    var
+        SalesHeader: Record "Sales Header";
+        LinesUpdated: Integer;
+    begin
+        // Given: A sales order with no item lines (only a comment)
+        SalesLibrary.CreateSalesOrder(SalesHeader);
+        SalesLibrary.CreateCommentLine(SalesHeader);
+
+        // When: Apply unit price
+        LinesUpdated := SalesLineDiscountHelper.ApplyUnitPrice(SalesHeader, 100);
+
+        // Then: No lines updated
+        if LinesUpdated <> 0 then
+            Error('Expected 0 lines updated, got %1', LinesUpdated);
+    end;
+
+    [Test]
+    procedure TestValidateUnitPriceRejectsNegative()
+    begin
+        asserterror SalesLineDiscountHelper.ValidateUnitPrice(-1);
+
+        if GetLastErrorText() = '' then
+            Error('Expected an error for negative unit price');
+    end;
+
+    [Test]
+    procedure TestValidateUnitPriceAcceptsZero()
+    begin
+        SalesLineDiscountHelper.ValidateUnitPrice(0);
+    end;
 }
